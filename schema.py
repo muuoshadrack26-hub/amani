@@ -12,3 +12,12 @@ class NoteUpdate(BaseModel):
     content:str
 
 
+class Create_user(BaseModel):
+    user_id:int
+    username:str
+    password:str
+
+class UpdateUser(BaseModel):
+    username:str
+    password:str
+

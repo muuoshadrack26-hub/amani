@@ -1,15 +1,22 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class Base(declarative_base):
     pass
 
-class questions(Base):
-    __tablename__="questions"
-    question_id=Column(Integer,primary_key=True,index=True)
-    question_text=Column(String,index=True)
 
-class choices(Base):
-    choice_id=Column(Integer,primary_key=True,index=True)
-    choice_text=Column(Integer,index=True)
-    question_id=Column(Integer,ForeignKey("question_id"),index=True)
+class Notes(Base):
+    __tablename__="notes"
+    id:Mapped[int]=mapped_column(primary_key=True)
+    title:Mapped[str]=mapped_column()
+    content:Mapped[str | None]=mapped_column(default=None)
+    user_id:Mapped[str]=mapped_column(ForeignKey="user_id")
+
+
+class NoteOwner(Base):
+    owner_id:Mapped[int]=mapped_column(primary_key=True)
+    username:Mapped[str]=mapped_column()
+    hashed_pwd:Mapped[str]=mapped_column()
+
