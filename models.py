@@ -15,7 +15,7 @@ class Notes(Base):
     user_id:Mapped[str]=mapped_column(ForeignKey="user_id")
 
 
-class NoteOwner(Base):
+class User(Base):
     __tablename__="owners"
     owner_id:Mapped[int]=mapped_column(primary_key=True)
     username:Mapped[str]=mapped_column()
