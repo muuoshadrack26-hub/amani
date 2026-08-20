@@ -85,3 +85,18 @@ async def update_user(session:db_Dep,updated:UpdateUser,current_user:User=Depend
     fetched_user.hashed_pwd=pwd_context.hash(updated.pwd)
 
 
+    return {"updated_user":updated}
+
+@app.delete("/user")
+async def delete_user(session:db_Dep,current_user:User=Depends(get_current_user)):
+    user=session.get(User,current_user.owner_id)
+    if user is None:
+        raise HTTPException(status_code=404,detail="not found")
+    session.delete(user)
+    session.commit()
+    session.refresh(user)
+
+    return {"user":"deleted"}
+
+
+
