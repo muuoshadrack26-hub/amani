@@ -13,7 +13,7 @@ app=FastAPI()
 
 @app.get("/notes")
 async def get_notes(session:db_Dep,current_user:User=Depends(get_current_user)):
-    notes=session.get(Notes,current_user.owner_id)
+    notes=session.execute(select(Notes).where(Notes.user_id==current_user.owner_id)).all()
     if not current_user:
         raise HTTPException(status_code=402, detail="forbidden")
     return notes
@@ -33,7 +33,7 @@ async def create_note(new:Note,session:db_Dep,current_user:User=Depends(get_curr
 async def update_note(updated:NoteUpdate,session:db_Dep,current_user:User=Depends(get_current_user)):
    if not current_user:
          raise HTTPException(status_code=402, detail="forbidden")
-   fetched_note=session.get(Note,current_user.owner_id)
+   fetched_note=session.get(Notes,current_user.owner_id)
    fetched_note.title=updated.title
    fetched_note.content=updated.content
    session.commit()
@@ -99,10 +99,11 @@ async def delete_user(session:db_Dep,current_user:User=Depends(get_current_user)
 
 @app.post("/login")
 async def login(session:db_Dep,form_data:OAuth2PasswordRequestForm=Depends()):
-    user=session.execute(select(User).where(User.username==form_data.username)).first()
+    query = select(User).where(User.username == form_data.username)
+    user = session.execute(query).scalar_one_or_none()
     if user is None:
         raise HTTPException(404,"not found")
-    verif=pwd_context.verify(form_data.password,user.hashed_password)
+    verif=pwd_context.verify(form_data.password,user.hashed_pwd)
     if not verif:
         raise HTTPException(401,"unauthorized")
     access_token=create_access_token(data={"sub":user.username})
