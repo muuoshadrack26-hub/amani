@@ -112,5 +112,10 @@ async def login(session:db_Dep,form_data:OAuth2PasswordRequestForm=Depends()):
             "token_type":"bearer"}
 
 
+#this code is only for commit purposes only ps ignore these lines at all costs,,well not all but you get it ,,right?
+def amani():
+    print("amani the ogeee typeshiii")
+
+
 
 
