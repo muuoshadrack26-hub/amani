@@ -20,14 +20,18 @@ async def get_notes(session:db_Dep,current_user:User=Depends(get_current_user)):
 
 @app.post("/notes")
 async def create_note(new:Note,session:db_Dep,current_user:User=Depends(get_current_user)):
-    if not current_user:
-        raise HTTPException(status_code=402, detail="forbidden")
-    new_note=Notes(new.title,new.content,new.date_created)
+
+    new_note=Notes(title=new.title,
+                   content=new.content,
+                   date_created=new.date_created,
+                   user_id=current_user.owner_id
+                   )
+
     session.add(new_note)
     session.commit()
+    session.refresh(new_note)
 
-    return {"new note":new_note}
-
+    return new_note
 
 @app.put("/notes")
 async def update_note(updated:NoteUpdate,session:db_Dep,current_user:User=Depends(get_current_user)):
