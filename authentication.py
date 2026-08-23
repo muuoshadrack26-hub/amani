@@ -33,8 +33,7 @@ def get_current_user(session:db_Dep,token:str=Depends(oauth2_scheme)):
     except PyJWTError:
         raise HTTPException(status_code=401,detail="not found")
 
-    user=session.execute(select(User).where(User.username==username)).first()
-
+    user=session.execute(select(User).where(User.username==username)).scalars().first()
     if user is None:
         raise HTTPException(status_code=401,detail="not found")
 

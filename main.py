@@ -57,9 +57,9 @@ async def delete_note(note_id:int,session:db_Dep,current_user:User=Depends(get_c
 async def create_user(new_user:Create_user,session:db_Dep):
     user_new=User(username=new_user.username,
                   hashed_pwd=pwd_context.hash(new_user.password))
-    existing=session.execute(select(User).where(User.username==user_new.username)).first()
+    existing=session.execute(select(User).where(User.username==user_new.username)).scalars().first()
     if existing:
-        raise HTTPException(status_code=402,detail="bad request")
+        raise HTTPException(status_code=403,detail="user exists")
     session.add(user_new)
     session.commit()
 
