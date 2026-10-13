@@ -6,17 +6,37 @@ from models import User,Notes
 from schema import UpdateUser,Create_user,Note,NoteUpdate
 from authentication import get_current_user, create_access_token
 from database import db_Dep
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows local HTML dashboard execution files
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/notes")
 async def get_notes(session:db_Dep,current_user:User=Depends(get_current_user)):
-    notes=session.execute(select(Notes).where(Notes.user_id==current_user.owner_id)).all()
+    notes=session.execute(select(Notes).where(Notes.user_id==current_user.owner_id)).scalars().all()
     if not current_user:
         raise HTTPException(status_code=402, detail="forbidden")
     return notes
+
+@app.get("/notes")
+async def get_note(id:int,session:db_Dep,current_user:User=Depends(get_current_user)):
+    note=session.execute(select(Notes).where(Notes.id==id,Notes.user_id==current_user.owner_id)).scalars()
+    if not current_user:
+      raise HTTPException(status_code=402,detail="forbidden")
+
+    if note is None:
+        raise HTTPException(status_code=404,detail="note not found")
+    return note
+
 
 @app.post("/notes")
 async def create_note(new:Note,session:db_Dep,current_user:User=Depends(get_current_user)):
@@ -34,10 +54,10 @@ async def create_note(new:Note,session:db_Dep,current_user:User=Depends(get_curr
     return new_note
 
 @app.put("/notes")
-async def update_note(updated:NoteUpdate,session:db_Dep,current_user:User=Depends(get_current_user)):
+async def update_note(id:int,updated:NoteUpdate,session:db_Dep,current_user:User=Depends(get_current_user)):
    if not current_user:
          raise HTTPException(status_code=402, detail="forbidden")
-   fetched_note=session.get(Notes,current_user.owner_id)
+   fetched_note=session.execute(select(Notes).where(Notes.id==id,Notes.user_id==current_user.owner_id)).scalar_one_or_none()
    fetched_note.title=updated.title
    fetched_note.content=updated.content
    session.commit()
@@ -51,6 +71,7 @@ async def delete_note(note_id:int,session:db_Dep,current_user:User=Depends(get_c
     fetched_note=session.get(Notes,note_id)
     session.delete(fetched_note)
     session.refresh(fetched_note)
+    session.commit()
 
     return{"note deleted":"successfully"}
 

@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException
 
-from jose import jwt
-from jwt import PyJWT, PyJWTError
+from jose import jwt,JWTError
+
 
 from passlib.ifc import PasswordHash
 from datetime import datetime, timezone, timedelta
@@ -30,7 +30,7 @@ def get_current_user(session:db_Dep,token:str=Depends(oauth2_scheme)):
     try:
         payload=jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
         username=payload.get("sub")
-    except PyJWTError:
+    except JWTError:
         raise HTTPException(status_code=401,detail="not found")
 
     user=session.execute(select(User).where(User.username==username)).scalars().first()

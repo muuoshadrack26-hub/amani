@@ -11,8 +11,8 @@ class Notes(Base):
     id:Mapped[int]=mapped_column(primary_key=True)
     title:Mapped[str]=mapped_column()
     content:Mapped[str | None]=mapped_column(default=None)
-    user_id:Mapped[str]=mapped_column(ForeignKey("owners.owner_id"))
-    date_created:Mapped[datetime]=mapped_column(default=datetime.now())
+    user_id:Mapped[int]=mapped_column(ForeignKey("owners.owner_id"))
+    date_created:Mapped[datetime]=mapped_column(default=datetime.now)
 
 
 class User(Base):
